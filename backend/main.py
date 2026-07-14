@@ -13,8 +13,7 @@ import logging
 
 from core.config import get_settings
 from core.rate_limiter import limiter
-from api import routes_crowd, routes_wayfinding, routes_fan_assistant, routes_control_room, websocket_feed
-
+from api import routes_crowd, routes_wayfinding, routes_fan_assistant, routes_control_room, routes_voice, websocket_feed
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
 
@@ -49,6 +48,7 @@ app.include_router(routes_crowd.router)
 app.include_router(routes_wayfinding.router)
 app.include_router(routes_fan_assistant.router)
 app.include_router(routes_control_room.router)
+app.include_router(routes_voice.router)
 app.include_router(websocket_feed.router)
 
 
