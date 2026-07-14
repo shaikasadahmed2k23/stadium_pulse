@@ -1,9 +1,10 @@
 """
 Fan Assistant API routes (Feature 3).
 """
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from agents.fan_assistant_agent import FanAssistantAgent
+from core.errors import AppError
 from core.rate_limiter import limiter
 from models.schemas import ChatRequest, ChatResponse
 
@@ -18,4 +19,8 @@ async def chat_with_assistant(request: Request, chat_request: ChatRequest):
     try:
         return await fan_assistant_agent.process(chat_request)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chat failed: {str(e)}")
+        # This endpoint's main failure mode is Gemini being unavailable --
+        # tag it as an upstream error (502) rather than a generic 500 so
+        # the frontend can show "assistant is temporarily down" instead of
+        # a hard error state.
+        raise AppError.upstream_error("Gemini", str(e)) from e

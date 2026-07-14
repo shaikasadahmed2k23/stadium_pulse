@@ -13,6 +13,8 @@ import logging
 
 from core.config import get_settings
 from core.rate_limiter import limiter
+from core.error_handlers import register_error_handlers
+from core.security_headers import SecurityHeadersMiddleware
 from api import routes_crowd, routes_wayfinding, routes_fan_assistant, routes_control_room, routes_voice, websocket_feed
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
@@ -34,7 +36,11 @@ app = FastAPI(
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+register_error_handlers(app)
 
+# Middleware order matters: Starlette applies these in reverse of
+# add_middleware() order, so SecurityHeadersMiddleware (added last) wraps
+# every response including CORS/GZip ones.
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
@@ -43,6 +49,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(SecurityHeadersMiddleware)
 
 app.include_router(routes_crowd.router)
 app.include_router(routes_wayfinding.router)

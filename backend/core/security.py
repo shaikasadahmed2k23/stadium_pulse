@@ -3,8 +3,9 @@ Security utilities — API key verification for staff-only endpoints
 (Control Room) and input sanitization helpers to reduce prompt-injection
 risk before user input reaches Gemini.
 """
-from fastapi import Header, HTTPException
+from fastapi import Header
 from core.config import get_settings
+from core.errors import AppError
 import re
 
 settings = get_settings()
@@ -17,7 +18,7 @@ async def verify_staff_api_key(x_api_key: str = Header(...)) -> str:
     traces. Fan-facing endpoints (chat, navigation, voice) stay public.
     """
     if x_api_key != settings.API_SECRET_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+        raise AppError.unauthorized("Invalid or missing API key")
     return x_api_key
 
 
