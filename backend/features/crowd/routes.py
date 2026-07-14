@@ -3,8 +3,8 @@ Crowd Intelligence API routes (Feature 1).
 """
 from fastapi import APIRouter, Query
 
-from agents.crowd_intelligence_agent import CrowdIntelligenceAgent
-from models.schemas import CrowdPredictionResponse
+from features.crowd.schemas import CrowdPredictionResponse
+from features.crowd.service import CrowdIntelligenceAgent
 
 router = APIRouter(prefix="/api/crowd", tags=["Crowd Intelligence"])
 crowd_agent = CrowdIntelligenceAgent()

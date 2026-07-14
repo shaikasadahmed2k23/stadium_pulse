@@ -1,10 +1,13 @@
 """
 Tests for Fan Assistant Agent (Feature 3).
 """
-import pytest
 from unittest.mock import AsyncMock, patch
-from agents.fan_assistant_agent import FanAssistantAgent
-from models.schemas import ChatRequest, Language
+
+import pytest
+
+from features.fan_assistant.schemas import ChatRequest
+from features.fan_assistant.service import FanAssistantAgent
+from shared.schemas import Language
 
 
 @pytest.mark.asyncio

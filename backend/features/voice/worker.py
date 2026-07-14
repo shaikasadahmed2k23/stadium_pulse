@@ -1,25 +1,28 @@
 """
 Voice Agent Worker (Feature 5).
 This runs as a separate LiveKit agent worker process — it joins the
-room created by voice_service, listens to the fan's speech, transcribes
+room created by voice/service.py, listens to the fan's speech, transcribes
 it, routes through the Fan Assistant Agent for a reply, then speaks
 the response back. This mirrors the Dr. Paws pipeline structure.
 
-Run separately from the main API: `python -m agents.voice_agent_worker`
+Run separately from the main API: `python -m features.voice.worker`
 """
-from livekit.agents import (
-    JobContext,
-    WorkerOptions,
-    cli,
-    Agent,
-    AgentSession,
-)
-from livekit.plugins import openai, silero
-from agents.fan_assistant_agent import FanAssistantAgent
-from models.schemas import ChatRequest, Language
 import json
 import logging
 import uuid
+
+from livekit.agents import (
+    Agent,
+    AgentSession,
+    JobContext,
+    WorkerOptions,
+    cli,
+)
+from livekit.plugins import openai, silero
+
+from features.fan_assistant.schemas import ChatRequest
+from features.fan_assistant.service import FanAssistantAgent
+from shared.schemas import Language
 
 logger = logging.getLogger(__name__)
 fan_assistant = FanAssistantAgent()

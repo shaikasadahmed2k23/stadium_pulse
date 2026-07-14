@@ -4,8 +4,8 @@ Voice Assistant API routes (Feature 5).
 from fastapi import APIRouter
 
 from core.errors import AppError
-from services.voice_service import voice_service
-from models.schemas import VoiceSessionRequest, VoiceSessionResponse
+from features.voice.schemas import VoiceSessionRequest, VoiceSessionResponse
+from features.voice.service import voice_service
 
 router = APIRouter(prefix="/api/voice", tags=["Voice Assistant"])
 

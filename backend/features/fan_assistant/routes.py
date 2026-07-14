@@ -3,10 +3,10 @@ Fan Assistant API routes (Feature 3).
 """
 from fastapi import APIRouter, Request
 
-from agents.fan_assistant_agent import FanAssistantAgent
 from core.errors import AppError
 from core.rate_limiter import limiter
-from models.schemas import ChatRequest, ChatResponse
+from features.fan_assistant.schemas import ChatRequest, ChatResponse
+from features.fan_assistant.service import FanAssistantAgent
 
 router = APIRouter(prefix="/api/fan-assistant", tags=["Fan Assistant"])
 fan_assistant_agent = FanAssistantAgent()

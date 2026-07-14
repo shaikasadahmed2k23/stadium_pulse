@@ -54,7 +54,7 @@ class StadiumGraph:
         return route or [end]
 
     def _critical_zones(self, congestion_map: dict) -> set[str]:
-        from models.schemas import ZoneStatus
+        from shared.schemas import ZoneStatus
         return {zid for zid, status in congestion_map.items() if status == ZoneStatus.CRITICAL}
 
     def _bfs(self, start: str, end: str, blocked: set[str]) -> list[str] | None:

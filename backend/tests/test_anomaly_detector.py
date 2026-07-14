@@ -2,8 +2,9 @@
 Tests for Anomaly Detector (Feature 8).
 """
 import pytest
-from agents.anomaly_detector import AnomalyDetector
-from models.schemas import IncidentType
+
+from features.control_room.anomaly_service import AnomalyDetector
+from features.control_room.schemas import IncidentType
 
 
 @pytest.mark.asyncio

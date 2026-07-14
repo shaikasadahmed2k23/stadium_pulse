@@ -3,8 +3,9 @@ In-memory incident store. Holds active incidents raised either manually
 (staff-reported) or automatically (Anomaly Detector — Feature 8).
 Swap for a Supabase table if time allows post-MVP.
 """
-from models.schemas import IncidentAlert
 import threading
+
+from features.control_room.schemas import IncidentAlert
 
 
 class IncidentStore:

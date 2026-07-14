@@ -58,10 +58,30 @@ cp .env.example .env.local  # fill in your values
 npm run dev
 ```
 
+## Project Structure
+
+Backend follows a feature-folder layout — each domain owns its
+routes, service logic, and schemas:
+
+```
+backend/
+  features/
+    crowd/          # Feature 1 — occupancy + prediction
+    wayfinding/      # Feature 2 + 7 — routing, low-sensory mode
+    fan_assistant/   # Feature 3 — chat, FAQ, intent routing
+    voice/           # Feature 5 — LiveKit voice sessions
+    control_room/    # Feature 4 + 6 + 8 — orchestration, anomalies, WebSocket feed
+  shared/           # BaseAgent + cross-feature schemas (ZoneStatus, ZoneData, Language)
+  core/             # config, security, rate limiting, error handling — cross-cutting
+  services/         # Gemini client, cache, reasoning logger — shared infra
+```
+
+See `docs/decisions.md` for the reasoning behind this structure.
+
 ## Testing
 
 ```bash
-# Backend — 52 tests
+# Backend — 67 tests
 cd backend && pytest tests/ -v
 
 # Frontend — 12 tests

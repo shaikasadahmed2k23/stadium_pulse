@@ -1,11 +1,11 @@
 """
 Tests for the in-memory incident store service.
 """
-from datetime import datetime
 import uuid
+from datetime import datetime
 
-from models.schemas import IncidentAlert, IncidentType
-from services.incident_store import IncidentStore
+from features.control_room.incident_store import IncidentStore
+from features.control_room.schemas import IncidentAlert, IncidentType
 
 
 def make_incident(incident_id: str | None = None) -> IncidentAlert:

@@ -1,10 +1,13 @@
 """
 Tests for Wayfinding Agent (Feature 2 + 7).
 """
-import pytest
 from unittest.mock import AsyncMock, patch
-from agents.wayfinding_agent import WayfindingAgent
-from models.schemas import NavigationRequest, Language
+
+import pytest
+
+from features.wayfinding.schemas import NavigationRequest
+from features.wayfinding.service import WayfindingAgent
+from shared.schemas import Language
 
 
 @pytest.mark.asyncio

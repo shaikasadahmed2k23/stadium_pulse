@@ -2,11 +2,13 @@
 Thin wrapper around the Gemini API. Centralizing this means we only
 configure retries, timeouts, and caching in one place.
 """
-import google.generativeai as genai
-from core.config import get_settings
-from services.cache_service import cache_service
 import hashlib
 import logging
+
+import google.generativeai as genai
+
+from core.config import get_settings
+from services.cache_service import cache_service
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

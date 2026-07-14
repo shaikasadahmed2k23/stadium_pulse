@@ -4,11 +4,13 @@ Pushes live control room state to connected dashboard clients every
 few seconds, so the frontend doesn't need to poll — genuinely
 demonstrates "real-time decision support" from the brief.
 """
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from agents.decision_orchestrator import DecisionOrchestrator
-from agents.anomaly_detector import AnomalyDetector
 import asyncio
 import logging
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+
+from features.control_room.anomaly_service import AnomalyDetector
+from features.control_room.orchestrator_service import DecisionOrchestrator
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

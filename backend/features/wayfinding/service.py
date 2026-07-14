@@ -5,15 +5,11 @@ a simplified stadium graph, and avoids congested zones using live
 data from the Crowd Intelligence Agent. Supports low-sensory mode
 for accessibility (avoids loud/high-stimulus zones).
 """
-from agents.base_agent import BaseAgent
-from agents.crowd_intelligence_agent import CrowdIntelligenceAgent
-from models.schemas import (
-    NavigationRequest,
-    NavigationResponse,
-    NavigationStep,
-    ZoneStatus,
-)
-from services.stadium_graph import stadium_graph
+from features.crowd.service import CrowdIntelligenceAgent
+from features.wayfinding.graph import stadium_graph
+from features.wayfinding.schemas import NavigationRequest, NavigationResponse, NavigationStep
+from shared.base_agent import BaseAgent
+from shared.schemas import ZoneStatus
 
 
 class WayfindingAgent(BaseAgent):

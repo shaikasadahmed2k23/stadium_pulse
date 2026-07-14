@@ -4,13 +4,14 @@ Staff-facing endpoints — aggregated state, reasoning trace, and
 incident reporting.
 """
 from fastapi import APIRouter, Depends
-from agents.decision_orchestrator import DecisionOrchestrator
-from agents.anomaly_detector import AnomalyDetector
-from core.errors import AppError
-from models.schemas import ControlRoomState, IncidentAlert, IncidentType
-from services.reasoning_logger import ReasoningLogger
-from core.security import verify_staff_api_key
 from pydantic import BaseModel
+
+from core.errors import AppError
+from core.security import verify_staff_api_key
+from features.control_room.anomaly_service import AnomalyDetector
+from features.control_room.orchestrator_service import DecisionOrchestrator
+from features.control_room.schemas import ControlRoomState, IncidentAlert, IncidentType
+from services.reasoning_logger import ReasoningLogger
 
 router = APIRouter(prefix="/api/control-room", tags=["Control Room"])
 orchestrator = DecisionOrchestrator()
@@ -54,7 +55,3 @@ async def report_incident_manually(request: ManualIncidentRequest, _: str = Depe
         description=request.description,
         severity=request.severity,
     )
-
-
-
-

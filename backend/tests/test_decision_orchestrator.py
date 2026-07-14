@@ -2,7 +2,8 @@
 Tests for Decision Orchestrator (Feature 4 + 6).
 """
 import pytest
-from agents.decision_orchestrator import DecisionOrchestrator
+
+from features.control_room.orchestrator_service import DecisionOrchestrator
 
 
 @pytest.mark.asyncio

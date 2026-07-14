@@ -3,10 +3,12 @@ Voice service (Feature 5) — generates LiveKit room tokens for fans to
 start a real-time voice session with the Fan Assistant. Reuses the same
 LiveKit pattern as Dr. Paws, adapted for multi-language stadium queries.
 """
-from livekit import api
-from core.config import get_settings
-import uuid
 import logging
+import uuid
+
+from livekit import api
+
+from core.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -21,7 +23,7 @@ class VoiceService:
     def create_voice_session(self, fan_id: str, language: str) -> dict:
         """
         Creates a unique room + access token for a fan's voice session.
-        The agent worker (voice_agent_worker.py) joins this same room
+        The agent worker (features/voice/worker.py) joins this same room
         to handle the actual conversation.
         """
         room_name = f"fan-{fan_id}-{uuid.uuid4().hex[:8]}"

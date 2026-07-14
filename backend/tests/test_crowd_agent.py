@@ -2,8 +2,9 @@
 Tests for Crowd Intelligence Agent (Feature 1).
 """
 import pytest
-from agents.crowd_intelligence_agent import CrowdIntelligenceAgent
-from models.schemas import ZoneStatus
+
+from features.crowd.service import CrowdIntelligenceAgent
+from shared.schemas import ZoneStatus
 
 
 @pytest.mark.asyncio

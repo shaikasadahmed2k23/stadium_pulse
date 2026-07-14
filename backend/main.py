@@ -2,6 +2,7 @@
 FastAPI application entrypoint. Wires together all routers, middleware,
 CORS, and rate limiting.
 """
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,13 +10,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-import logging
 
 from core.config import get_settings
-from core.rate_limiter import limiter
 from core.error_handlers import register_error_handlers
+from core.rate_limiter import limiter
 from core.security_headers import SecurityHeadersMiddleware
-from api import routes_crowd, routes_wayfinding, routes_fan_assistant, routes_control_room, routes_voice, websocket_feed
+from features.control_room import routes as routes_control_room
+from features.control_room import ws as websocket_feed
+from features.crowd import routes as routes_crowd
+from features.fan_assistant import routes as routes_fan_assistant
+from features.voice import routes as routes_voice
+from features.wayfinding import routes as routes_wayfinding
+
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
 

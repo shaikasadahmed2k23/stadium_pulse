@@ -5,12 +5,14 @@ sustained critical occupancy) and auto-raises incidents — demonstrating
 the system catching problems before staff notice them, directly
 answering the brief's "zero room for execution errors" requirement.
 """
-from agents.base_agent import BaseAgent
-from agents.crowd_intelligence_agent import CrowdIntelligenceAgent
-from models.schemas import IncidentAlert, IncidentType, ZoneStatus
-from services.incident_store import incident_store
 import uuid
 from datetime import datetime
+
+from features.control_room.incident_store import incident_store
+from features.control_room.schemas import IncidentAlert, IncidentType
+from features.crowd.service import CrowdIntelligenceAgent
+from shared.base_agent import BaseAgent
+from shared.schemas import ZoneStatus
 
 
 class AnomalyDetector(BaseAgent):
@@ -56,6 +58,7 @@ class AnomalyDetector(BaseAgent):
         if previous is None:
             return False
         return (current_pct - previous) >= 25
+
     def _resolve_stale_incidents(self, zone_id: str) -> None:
         """Clears incidents for a zone once it's no longer critical, so the
         dashboard doesn't accumulate stale alerts indefinitely."""
@@ -63,6 +66,7 @@ class AnomalyDetector(BaseAgent):
         for incident in active:
             if incident.zone == zone_id and incident.incident_type == IncidentType.CROWD_SURGE:
                 incident_store.resolve(incident.incident_id)
+
     async def _create_incident(self, zone, surge_detected: bool) -> IncidentAlert:
         incident_type = IncidentType.CROWD_SURGE
         severity = "critical" if zone.status == ZoneStatus.CRITICAL else "high"

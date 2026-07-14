@@ -5,11 +5,12 @@ stadium queries. Detects when a request is actually a navigation query
 and routes it to the Wayfinding Agent instead of trying to answer it
 directly — keeps each agent focused on what it does best.
 """
-from agents.base_agent import BaseAgent
-from models.schemas import ChatRequest, ChatResponse
-from services.faq_knowledge import faq_knowledge
-from core.security import sanitize_user_input
 import re
+
+from core.security import sanitize_user_input
+from features.fan_assistant.faq_data import faq_knowledge
+from features.fan_assistant.schemas import ChatRequest, ChatResponse
+from shared.base_agent import BaseAgent
 
 
 class FanAssistantAgent(BaseAgent):

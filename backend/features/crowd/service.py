@@ -3,10 +3,12 @@ Crowd Intelligence Agent (Feature 1).
 Simulates live zone occupancy data and predicts near-term congestion
 using simple trend extrapolation + Gemini for natural-language risk summaries.
 """
-from agents.base_agent import BaseAgent
-from models.schemas import ZoneData, ZoneStatus, CrowdPredictionResponse
-from services.sensor_simulator import sensor_simulator
 from datetime import datetime
+
+from features.crowd.schemas import CrowdPredictionResponse
+from features.crowd.sensor_simulator import sensor_simulator
+from shared.base_agent import BaseAgent
+from shared.schemas import ZoneData, ZoneStatus
 
 
 class CrowdIntelligenceAgent(BaseAgent):

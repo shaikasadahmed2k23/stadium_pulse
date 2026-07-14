@@ -1,7 +1,7 @@
 """
 Tests for the sensor/crowd data simulator service.
 """
-from services.sensor_simulator import SensorSimulator
+from features.crowd.sensor_simulator import SensorSimulator
 
 
 def test_snapshot_returns_all_zones_by_default():

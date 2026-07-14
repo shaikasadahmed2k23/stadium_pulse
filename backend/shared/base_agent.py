@@ -1,11 +1,15 @@
 """
 Base agent class — shared foundation for all StadiumPulse agents.
 Handles Gemini client setup, reasoning logging, and common utilities
-so individual agents stay focused on their own logic.
+so individual feature services stay focused on their own logic.
+
+Lives in shared/ rather than any single feature/ because every feature's
+service class inherits from it.
 """
+import logging
 from abc import ABC, abstractmethod
 from typing import Any
-import logging
+
 from services.gemini_client import GeminiClient
 from services.reasoning_logger import ReasoningLogger
 
@@ -14,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 class BaseAgent(ABC):
     """
-    Every agent (Crowd, Wayfinding, Fan Assistant, Decision Orchestrator,
-    Anomaly Detector) inherits from this. Keeps Gemini calls, error handling,
-    and reasoning capture consistent across the system.
+    Every feature service (Crowd, Wayfinding, Fan Assistant, Decision
+    Orchestrator, Anomaly Detector) inherits from this. Keeps Gemini calls,
+    error handling, and reasoning capture consistent across the system.
     """
 
     def __init__(self, agent_name: str):
@@ -47,6 +51,7 @@ class BaseAgent(ABC):
         except Exception as e:
             logger.error(f"[{self.agent_name}] Gemini call failed: {str(e)}")
             return fallback or "Unable to generate response at this time."
+
     def log_reasoning(self, decision: str, factors: list[dict]) -> None:
         """Feature 6 — every agent logs *why* it made a decision."""
         self.reasoning_logger.log(decision=decision, factors=factors)

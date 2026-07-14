@@ -1,7 +1,7 @@
 """
 Tests for the FAQ knowledge base keyword matching service.
 """
-from services.faq_knowledge import faq_knowledge
+from features.fan_assistant.faq_data import faq_knowledge
 
 
 def test_matches_restroom_query():

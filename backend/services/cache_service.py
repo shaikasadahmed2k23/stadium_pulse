@@ -3,9 +3,11 @@ Simple in-memory LRU cache with TTL. Keeps things fast without needing
 Redis set up on day one — can swap to Redis later without changing
 the interface used elsewhere in the codebase.
 """
-from cachetools import TTLCache
-from core.config import get_settings
 import threading
+
+from cachetools import TTLCache
+
+from core.config import get_settings
 
 settings = get_settings()
 

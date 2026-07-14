@@ -2,6 +2,9 @@
 Simulates live stadium sensor/footfall data since we don't have real
 IoT sensors. Generates realistic-looking zone occupancy with random
 walk trends so the dashboard feels genuinely "live" during the demo.
+
+Crowd-feature-only dependency — no other feature reads raw sensor data,
+they consume it through CrowdIntelligenceAgent.process() instead.
 """
 import random
 

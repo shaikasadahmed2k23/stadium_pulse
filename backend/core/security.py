@@ -3,10 +3,12 @@ Security utilities — API key verification for staff-only endpoints
 (Control Room) and input sanitization helpers to reduce prompt-injection
 risk before user input reaches Gemini.
 """
+import re
+
 from fastapi import Header
+
 from core.config import get_settings
 from core.errors import AppError
-import re
 
 settings = get_settings()
 

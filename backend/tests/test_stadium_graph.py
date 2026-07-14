@@ -2,7 +2,7 @@
 Tests for the stadium navigation graph service — currently untested
 directly (only indirectly through Wayfinding Agent tests).
 """
-from services.stadium_graph import stadium_graph
+from features.wayfinding.graph import stadium_graph
 
 
 def test_all_zone_ids_returns_expected_zones():
@@ -54,7 +54,7 @@ def test_route_avoids_explicitly_blocked_zone():
 
 
 def test_route_prefers_avoiding_critical_congestion():
-    from models.schemas import ZoneStatus
+    from shared.schemas import ZoneStatus
 
     congestion_map = {"concourse_a": ZoneStatus.CRITICAL}
     route = stadium_graph.find_route(

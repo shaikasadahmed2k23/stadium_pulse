@@ -5,24 +5,29 @@ Context → Decision → Trade-off.
 
 ---
 
-## ADR-001: Layered backend structure, not feature-folders
+## ADR-001: Feature-folder structure (superseded a layered structure)
 
 **Context:** The backend has five agents (Crowd, Wayfinding, Fan Assistant,
 Anomaly Detector, Decision Orchestrator), each with its own route, schema,
-and business logic.
+and business logic. The project originally used a layered structure
+(`agents/`, `api/`, `core/`, `models/`, `services/`) — fast to navigate
+solo during the initial build, but every feature touched 3-4 directories
+and `models/schemas.py` was becoming a 140+ line dumping ground.
 
-**Decision:** Organized by technical layer — `agents/`, `api/`, `core/`,
-`models/`, `services/` — rather than by feature (`features/crowd/{routes,
-service,schemas}`, `features/wayfinding/{...}`, etc.).
+**Decision:** Migrated to `features/<domain>/{routes, service, schemas}`
+— one folder per domain (crowd, wayfinding, fan_assistant, voice,
+control_room). Genuinely cross-feature code (BaseAgent, ZoneStatus,
+ZoneData, Language) moved to `shared/`; cross-cutting infra (Gemini
+client, cache, config, security, rate limiting, error handling) stayed in
+`core/`/`services/` since it isn't owned by any one feature.
 
-**Trade-off:** Layered structure means adding a feature touches 3-4
-directories instead of 1, and it's easy to end up with `models/schemas.py`
-becoming a 300-line dumping ground as agents grow. Feature-folders scale
-better past ~5 agents and make ownership boundaries clearer for a team.
-For a 5-agent hackathon build with one contributor, layered was faster to
-navigate day-to-day. **If this project grows past the current 5 agents,
-migrate to feature-folders** — it's a mechanical refactor (move + fix
-imports), not a redesign.
+**Trade-off:** Cross-feature imports now exist (e.g. `wayfinding/service.py`
+imports `features.crowd.service.CrowdIntelligenceAgent`, since routing
+needs live occupancy data) — this is expected and fine in a feature-folder
+layout, not a violation of it. The upside: each feature's routes/service/
+schemas sit together, onboarding a reviewer to "how does wayfinding work"
+means opening one folder instead of five. Worth doing once the codebase
+crossed ~5 domains; would have been premature at 1-2.
 
 ---
 

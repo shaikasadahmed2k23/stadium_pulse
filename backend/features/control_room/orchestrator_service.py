@@ -5,18 +5,19 @@ and active incidents, then generates prioritized, explainable
 recommendations for staff. Every recommendation carries its reasoning
 factors so the dashboard can show *why*, not just *what*.
 """
-from agents.base_agent import BaseAgent
-from agents.crowd_intelligence_agent import CrowdIntelligenceAgent
-from models.schemas import (
-    DecisionRecommendation,
-    ReasoningFactor,
-    ControlRoomState,
-    ZoneStatus,
-    IncidentAlert,
-)
-from services.incident_store import incident_store
 import uuid
 from datetime import datetime
+
+from features.control_room.incident_store import incident_store
+from features.control_room.schemas import (
+    ControlRoomState,
+    DecisionRecommendation,
+    IncidentAlert,
+    ReasoningFactor,
+)
+from features.crowd.service import CrowdIntelligenceAgent
+from shared.base_agent import BaseAgent
+from shared.schemas import ZoneStatus
 
 
 class DecisionOrchestrator(BaseAgent):

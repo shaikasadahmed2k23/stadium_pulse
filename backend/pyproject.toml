@@ -21,6 +21,10 @@ select = [
 ]
 ignore = [
     "E501",  # line length handled by formatter, not worth failing CI over
+    "UP042", # (str, Enum) not StrEnum -- intentional for Pydantic v2 JSON
+             # serialization compatibility across the codebase's enums
+    "B008",  # FastAPI's Query()/Depends()/Body() *require* being used as
+             # argument defaults -- this is idiomatic, not a bug, here
 ]
 
 [tool.ruff.lint.per-file-ignores]
