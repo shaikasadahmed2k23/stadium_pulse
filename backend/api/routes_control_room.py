@@ -3,9 +3,10 @@ Control Room API routes (Feature 4 + 6 + 8).
 Staff-facing endpoints — aggregated state, reasoning trace, and
 incident reporting.
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from agents.decision_orchestrator import DecisionOrchestrator
 from agents.anomaly_detector import AnomalyDetector
+from core.errors import AppError
 from models.schemas import ControlRoomState, IncidentAlert, IncidentType
 from services.reasoning_logger import ReasoningLogger
 from core.security import verify_staff_api_key
@@ -41,7 +42,7 @@ async def scan_for_anomalies(_: str = Depends(verify_staff_api_key)):
     try:
         return await anomaly_detector.process()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Anomaly scan failed: {str(e)}")
+        raise AppError.upstream_error("Anomaly detector", str(e)) from e
 
 
 @router.post("/incidents/report", response_model=IncidentAlert)

@@ -1,7 +1,9 @@
 """
 Voice Assistant API routes (Feature 5).
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+
+from core.errors import AppError
 from services.voice_service import voice_service
 from models.schemas import VoiceSessionRequest, VoiceSessionResponse
 
@@ -18,4 +20,6 @@ async def create_voice_session(request: VoiceSessionRequest):
         )
         return VoiceSessionResponse(**session)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Voice session creation failed: {str(e)}")
+        # LiveKit is a third-party dependency -- surface it as upstream_error
+        # (502) rather than internal_error (500), it's not our code that broke.
+        raise AppError.upstream_error("LiveKit", str(e)) from e
