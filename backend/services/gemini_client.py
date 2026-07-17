@@ -33,7 +33,10 @@ class GeminiClient:
 
         try:
             full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
-            response = self.model.generate_content(full_prompt)
+            # generate_content() is blocking and would stall the event loop for
+            # every concurrent request during a live Gemini call — use the async
+            # variant so other requests keep being served while this awaits.
+            response = await self.model.generate_content_async(full_prompt)
             result = response.text
 
             cache_service.set(cache_key, result)
