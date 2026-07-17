@@ -112,7 +112,7 @@ a reasonable future optimization if the Orchestrator's output quality
 becomes a bottleneck.
 
 
-## ADR-007: Voice Pipeline — Gemini Live RealtimeModel over OpenAI STT/LLM/TTS
+## ADR-006: Voice Pipeline — Gemini Live RealtimeModel over OpenAI STT/LLM/TTS
 
 **Context:** The original voice worker implementation used OpenAI's separate
 STT, LLM, and TTS plugins (`livekit-plugins-openai`) chained together via
