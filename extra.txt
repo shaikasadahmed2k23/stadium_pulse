@@ -1,0 +1,4 @@
+python -m features.voice.worker dev
+npm install
+npm run dev
+uvicorn main:app --reload 

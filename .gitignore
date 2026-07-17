@@ -1,0 +1,11 @@
+# Safety net — catches these patterns anywhere in the repo,
+# in case backend/ or frontend/ .gitignore rules get missed
+**/.env
+**/__pycache__/
+**/node_modules/
+**/.next/
+**/.venv/
+**/*.pyc
+**/.pytest_cache/
+**/venv/
+**/.venv/
