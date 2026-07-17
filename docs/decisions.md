@@ -111,6 +111,7 @@ reasoning quality for a live-operations tool. Per-agent model tiering is
 a reasonable future optimization if the Orchestrator's output quality
 becomes a bottleneck.
 
+---
 
 ## ADR-006: Voice Pipeline — Gemini Live RealtimeModel over OpenAI STT/LLM/TTS
 
