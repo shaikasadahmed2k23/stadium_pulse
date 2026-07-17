@@ -13,6 +13,12 @@ from features.fan_assistant.schemas import ChatRequest, ChatResponse
 from shared.base_agent import BaseAgent
 
 
+def _strip_language_prefix(text: str) -> str:
+    """Defensive cleanup in case Gemini prefixes its response with a
+    language-code label like 'en:' despite instructions not to."""
+    return re.sub(r"^[a-z]{2}(-[A-Z]{2})?:\s*", "", text.strip())
+
+
 class FanAssistantAgent(BaseAgent):
     def __init__(self):
         super().__init__(agent_name="FanAssistantAgent")
@@ -23,6 +29,7 @@ class FanAssistantAgent(BaseAgent):
 
         if intent == "navigation":
             reply = await self._navigation_redirect_message(request.language.value)
+            reply = _strip_language_prefix(reply)
             self.log_reasoning(
                 decision="Routed to Wayfinding Agent",
                 factors=[{"factor": "detected_intent", "weight": 1.0, "value": "navigation"}],
@@ -37,6 +44,7 @@ class FanAssistantAgent(BaseAgent):
         # Otherwise, answer using FAQ knowledge + Gemini for natural phrasing
         context = faq_knowledge.get_relevant_context(request.message)
         reply = await self._generate_answer(request.message, context, request.language.value)
+        reply = _strip_language_prefix(reply)
 
         self.log_reasoning(
             decision=f"Answered FAQ intent: {intent}",
@@ -65,7 +73,9 @@ class FanAssistantAgent(BaseAgent):
     async def _navigation_redirect_message(self, language: str) -> str:
         system_instruction = (
             f"Respond in language code '{language}'. Tell the fan briefly and warmly "
-            "that you're pulling up navigation help for their request, in one short sentence."
+            "that you're pulling up navigation help for their request, in one short sentence. "
+            "Output ONLY the message text itself — do not include the language code, "
+            "a label, or any prefix like 'en:' before your response."
         )
         return await self._call_gemini(prompt="Generate the redirect message.", system_instruction=system_instruction)
 
@@ -73,6 +83,8 @@ class FanAssistantAgent(BaseAgent):
         system_instruction = (
             f"You are a friendly FIFA World Cup 2026 stadium assistant. Respond in language "
             f"code '{language}'. Use this context if relevant: {context}. "
-            "Keep answers short, warm, and helpful — 2-3 sentences max."
+            "Keep answers short, warm, and helpful — 2-3 sentences max. "
+            "Output ONLY the message text itself — do not include the language code, "
+            "a label, or any prefix like 'en:' before your response."
         )
         return await self._call_gemini(prompt=message, system_instruction=system_instruction)
