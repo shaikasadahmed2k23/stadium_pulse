@@ -3,6 +3,8 @@ FastAPI application entrypoint. Wires together all routers, middleware,
 CORS, and rate limiting.
 """
 import logging
+import subprocess
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -21,13 +23,38 @@ from features.wayfinding import routes as routes_wayfinding
 
 logging.basicConfig(level=logging.INFO)
 settings = get_settings()
+logger = logging.getLogger(__name__)
+
+voice_worker_process: subprocess.Popen | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.getLogger(__name__).info(f"{settings.APP_NAME} starting up...")
+    global voice_worker_process
+    logger.info(f"{settings.APP_NAME} starting up...")
+
+    # Spawn the LiveKit voice worker as a child process alongside the API.
+    # Render's free plan has no separate background worker service type,
+    # so this runs it as its own OS process inside the same web service
+    # instance — LiveKit's signal handling and asyncio loop work exactly
+    # as when run standalone with `python -m features.voice.worker start`.
+    try:
+        voice_worker_process = subprocess.Popen(
+            [sys.executable, "-m", "features.voice.worker", "start"],
+        )
+        logger.info(f"Voice worker started (pid={voice_worker_process.pid})")
+    except Exception:
+        logger.exception("Failed to start voice worker subprocess")
+
     yield
-    logging.getLogger(__name__).info(f"{settings.APP_NAME} shutting down...")
+
+    logger.info(f"{settings.APP_NAME} shutting down...")
+    if voice_worker_process and voice_worker_process.poll() is None:
+        voice_worker_process.terminate()
+        try:
+            voice_worker_process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            voice_worker_process.kill()
 
 
 app = FastAPI(

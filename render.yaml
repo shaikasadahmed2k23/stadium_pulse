@@ -26,7 +26,6 @@ services:
         sync: false
       - key: LIVEKIT_URL
         sync: false
-
   - type: worker
     name: stadiumpulse-voice-worker
     env: python
