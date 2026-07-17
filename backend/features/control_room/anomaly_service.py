@@ -7,12 +7,17 @@ answering the brief's "zero room for execution errors" requirement.
 """
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from features.control_room.incident_store import incident_store
 from features.control_room.schemas import IncidentAlert, IncidentType
 from features.crowd.service import CrowdIntelligenceAgent
 from shared.base_agent import BaseAgent
-from shared.schemas import ZoneStatus
+from shared.schemas import ZoneData, ZoneStatus
+
+# A jump of this many percentage points of occupancy within one polling
+# cycle counts as a sudden surge worth auto-raising an incident for.
+SURGE_THRESHOLD_PCT = 25
 
 
 class AnomalyDetector(BaseAgent):
@@ -53,11 +58,11 @@ class AnomalyDetector(BaseAgent):
         return new_incidents
 
     def _is_sudden_surge(self, zone_id: str, current_pct: float) -> bool:
-        """A jump of 25%+ occupancy within one polling cycle counts as a surge."""
+        """A jump of SURGE_THRESHOLD_PCT+ occupancy within one polling cycle counts as a surge."""
         previous = self._previous_occupancy.get(zone_id)
         if previous is None:
             return False
-        return (current_pct - previous) >= 25
+        return (current_pct - previous) >= SURGE_THRESHOLD_PCT
 
     def _resolve_stale_incidents(self, zone_id: str) -> None:
         """Clears incidents for a zone once it's no longer critical, so the
@@ -67,9 +72,11 @@ class AnomalyDetector(BaseAgent):
             if incident.zone == zone_id and incident.incident_type == IncidentType.CROWD_SURGE:
                 incident_store.resolve(incident.incident_id)
 
-    async def _create_incident(self, zone, surge_detected: bool) -> IncidentAlert:
+    async def _create_incident(self, zone: ZoneData, surge_detected: bool) -> IncidentAlert:
         incident_type = IncidentType.CROWD_SURGE
-        severity = "critical" if zone.status == ZoneStatus.CRITICAL else "high"
+        severity: Literal["high", "critical"] = (
+            "critical" if zone.status == ZoneStatus.CRITICAL else "high"
+        )
 
         description = (
             f"Sudden crowd surge detected at {zone.zone_name} — occupancy jumped sharply."
@@ -89,7 +96,7 @@ class AnomalyDetector(BaseAgent):
             timestamp=datetime.utcnow(),
         )
 
-    async def _get_cached_or_generate_action(self, zone) -> str:
+    async def _get_cached_or_generate_action(self, zone: ZoneData) -> str:
         """
         Avoids hitting Gemini on every 5-second poll for the same ongoing
         incident — only regenerates when the zone's status actually changes.
@@ -114,7 +121,11 @@ class AnomalyDetector(BaseAgent):
         return await self._call_gemini(prompt=prompt, system_instruction=system_instruction, fallback=fallback)
 
     def manually_report_incident(
-        self, zone_id: str, incident_type: IncidentType, description: str, severity: str
+        self,
+        zone_id: str,
+        incident_type: IncidentType,
+        description: str,
+        severity: Literal["low", "medium", "high", "critical"],
     ) -> IncidentAlert:
         """Allows staff to manually report incidents too (e.g. lost child, medical)."""
         incident = IncidentAlert(

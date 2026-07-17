@@ -7,8 +7,27 @@ Crowd-feature-only dependency — no other feature reads raw sensor data,
 they consume it through CrowdIntelligenceAgent.process() instead.
 """
 import random
+from typing import TypedDict
 
-ZONES = [
+
+class ZoneConfig(TypedDict):
+    zone_id: str
+    zone_name: str
+    max_capacity: int
+
+
+class ZoneState(ZoneConfig):
+    current_occupancy: int
+    trend_rate: float
+
+
+class SensorOutput(ZoneConfig):
+    current_occupancy: int
+    occupancy_percentage: float
+    trend_rate: float
+
+
+ZONES: list[ZoneConfig] = [
     {"zone_id": "gate_1", "zone_name": "Gate 1 - North Entrance", "max_capacity": 5000},
     {"zone_id": "gate_2", "zone_name": "Gate 2 - South Entrance", "max_capacity": 5000},
     {"zone_id": "gate_3", "zone_name": "Gate 3 - East Entrance", "max_capacity": 4000},
@@ -20,7 +39,7 @@ ZONES = [
 
 class SensorSimulator:
     def __init__(self):
-        self._state = {
+        self._state: dict[str, ZoneState] = {
             z["zone_id"]: {
                 **z,
                 "current_occupancy": random.randint(int(z["max_capacity"] * 0.3), int(z["max_capacity"] * 0.6)),
@@ -29,12 +48,12 @@ class SensorSimulator:
             for z in ZONES
         }
 
-    def get_current_snapshot(self, zone_ids: list[str] | None = None) -> list[dict]:
+    def get_current_snapshot(self, zone_ids: list[str] | None = None) -> list[SensorOutput]:
         self._tick()
-        zones = self._state.values()
+        all_zones = list(self._state.values())
         if zone_ids:
-            zones = [z for z in zones if z["zone_id"] in zone_ids]
-        return [self._to_output(z) for z in zones]
+            all_zones = [z for z in all_zones if z["zone_id"] in zone_ids]
+        return [self._to_output(z) for z in all_zones]
 
     def _tick(self) -> None:
         """Advances the simulation by one step — call before every read."""
@@ -47,7 +66,7 @@ class SensorSimulator:
             if random.random() < 0.1:
                 zone["trend_rate"] = random.uniform(-50, 100)
 
-    def _to_output(self, zone: dict) -> dict:
+    def _to_output(self, zone: ZoneState) -> SensorOutput:
         return {
             "zone_id": zone["zone_id"],
             "zone_name": zone["zone_name"],

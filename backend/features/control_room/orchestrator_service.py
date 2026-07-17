@@ -5,8 +5,10 @@ and active incidents, then generates prioritized, explainable
 recommendations for staff. Every recommendation carries its reasoning
 factors so the dashboard can show *why*, not just *what*.
 """
+
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from features.control_room.incident_store import incident_store
 from features.control_room.schemas import (
@@ -57,7 +59,9 @@ class DecisionOrchestrator(BaseAgent):
         )
 
         confidence = min(0.95, 0.5 + (zone.occupancy_percentage / 200))
-        priority = "critical" if zone.status == ZoneStatus.CRITICAL else "high"
+        priority: Literal["critical", "high"] = (
+            "critical" if zone.status == ZoneStatus.CRITICAL else "high"
+        )
 
         action = (
             f"Redirect fans from {zone.zone_name} to {alternative.zone_name}"

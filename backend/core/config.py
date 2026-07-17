@@ -46,4 +46,4 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     """Cached settings instance — avoids re-reading .env on every call."""
-    return Settings()
+    return Settings()  # type: ignore[call-arg]  # fields are populated from .env at runtime

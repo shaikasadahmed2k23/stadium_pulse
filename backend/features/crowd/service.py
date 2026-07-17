@@ -6,7 +6,7 @@ using simple trend extrapolation + Gemini for natural-language risk summaries.
 from datetime import datetime
 
 from features.crowd.schemas import CrowdPredictionResponse
-from features.crowd.sensor_simulator import sensor_simulator
+from features.crowd.sensor_simulator import SensorOutput, sensor_simulator
 from shared.base_agent import BaseAgent
 from shared.schemas import ZoneData, ZoneStatus
 
@@ -52,7 +52,7 @@ class CrowdIntelligenceAgent(BaseAgent):
             overall_status=overall_status,
         )
 
-    def _predict_next_occupancy(self, raw: dict) -> int:
+    def _predict_next_occupancy(self, raw: SensorOutput) -> int:    
         """Simple linear trend extrapolation — no heavy ML needed for a solid demo."""
         trend_rate = raw.get("trend_rate", 0)
         current = raw["current_occupancy"]

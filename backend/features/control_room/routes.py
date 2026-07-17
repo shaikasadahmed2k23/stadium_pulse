@@ -3,6 +3,8 @@ Control Room API routes (Feature 4 + 6 + 8).
 Staff-facing endpoints — aggregated state, reasoning trace, and
 incident reporting.
 """
+from typing import Literal
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
@@ -22,7 +24,7 @@ class ManualIncidentRequest(BaseModel):
     zone_id: str
     incident_type: IncidentType
     description: str
-    severity: str = "medium"
+    severity: Literal["low", "medium", "high", "critical"] = "medium"
 
 
 @router.get("/state", response_model=ControlRoomState)

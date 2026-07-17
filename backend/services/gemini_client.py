@@ -29,7 +29,7 @@ class GeminiClient:
         cached = cache_service.get(cache_key)
         if cached:
             logger.info("Cache hit — skipping Gemini call")
-            return cached
+            return str(cached)
 
         try:
             full_prompt = f"{system_instruction}\n\n{prompt}" if system_instruction else prompt
@@ -37,7 +37,7 @@ class GeminiClient:
             # every concurrent request during a live Gemini call — use the async
             # variant so other requests keep being served while this awaits.
             response = await self.model.generate_content_async(full_prompt)
-            result = response.text
+            result = str(response.text)
 
             cache_service.set(cache_key, result)
             return result

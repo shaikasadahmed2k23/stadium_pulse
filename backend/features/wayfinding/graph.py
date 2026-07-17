@@ -5,8 +5,17 @@ demo, an adjacency map with a BFS-based route + congestion-aware
 detour logic is enough to show the concept clearly and reliably.
 """
 from collections import deque
+from typing import TypedDict
 
-GRAPH = {
+
+class ZoneNode(TypedDict):
+    neighbors: list[str]
+    instruction: str
+    base_time_seconds: int
+    high_stimulus: bool
+
+
+GRAPH: dict[str, ZoneNode] = {
     "gate_1": {"neighbors": ["concourse_a"], "instruction": "Enter through Gate 1", "base_time_seconds": 30, "high_stimulus": True},
     "gate_2": {"neighbors": ["concourse_b"], "instruction": "Enter through Gate 2", "base_time_seconds": 30, "high_stimulus": True},
     "gate_3": {"neighbors": ["concourse_a"], "instruction": "Enter through Gate 3", "base_time_seconds": 30, "high_stimulus": True},
@@ -23,7 +32,7 @@ class StadiumGraph:
     def default_zone(self) -> str:
         return "section_101"
 
-    def get_zone_info(self, zone_id: str) -> dict:
+    def get_zone_info(self, zone_id: str) -> ZoneNode:
         return GRAPH.get(zone_id, GRAPH[self.default_zone()])
 
     def high_stimulus_zones(self) -> set[str]:
@@ -68,7 +77,8 @@ class StadiumGraph:
             path = queue.popleft()
             current = path[-1]
 
-            for neighbor in GRAPH.get(current, {}).get("neighbors", []):
+            node = GRAPH.get(current)
+            for neighbor in node["neighbors"] if node else []:
                 if neighbor in blocked or neighbor in visited:
                     continue
                 new_path = path + [neighbor]
