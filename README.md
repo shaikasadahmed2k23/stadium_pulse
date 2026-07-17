@@ -70,9 +70,11 @@ technical trade-offs.
   shared staff API key, not per-user accounts (see `docs/decisions.md`
   ADR-004); assumed acceptable for one event's staff, not a
   multi-tenant SaaS.
-- **Demo-scale traffic** — rate limiting uses a fixed-window limiter
-  (documented limitation in `SECURITY.md`), not a token bucket; assumed
-  acceptable for hackathon/demo load, not adversarial production traffic.
+- **Demo-scale traffic** — rate limiting uses a custom token-bucket
+  limiter (`core/rate_limiter.py`, see `docs/decisions.md` ADR-003), but
+  buckets are per-process and keyed by client IP — acceptable for a
+  single-instance demo deployment, documented as a known limitation for
+  scaling to multi-instance production (see `SECURITY.md`).
 - **In-memory state** — cache, incidents, and reasoning logs are
   in-process (not Redis/DB-backed), so state resets on redeploy; assumed
   fine for a single-instance demo deployment (see ADR-002).
@@ -95,7 +97,7 @@ Five specialized agents, one orchestrator:
 
 ## Tech Stack
 
-**Backend:** FastAPI, Python 3.11, Gemini 2.5 Flash, LiveKit (voice), Supabase, pytest
+**Backend:** FastAPI, Python 3.12, Gemini 2.5 Flash, LiveKit + Gemini Live Realtime API (voice), Supabase, pytest
 **Frontend:** Next.js 14, TypeScript, Tailwind CSS, WebSockets, Vitest + React Testing Library
 
 ## Features
@@ -121,7 +123,7 @@ Five specialized agents, one orchestrator:
 **Backend:**
 ```bash
 cd backend
-python3.11 -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env  # fill in your keys
@@ -159,7 +161,7 @@ See `docs/decisions.md` for the reasoning behind this structure.
 ## Testing
 
 ```bash
-# Backend — 67 tests
+# Backend — 81 tests
 cd backend && pytest tests/ -v
 
 # Frontend — 12 tests
