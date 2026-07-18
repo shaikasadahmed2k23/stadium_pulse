@@ -264,17 +264,19 @@ Run the full backend suite:
 cd backend && pytest tests/ --cov=. --cov-report=term-missing -v
 ```
 
-**99 tests, 95% overall statement coverage** (100% on core business logic —
-schemas, agents, security, rate limiting, error handling; thin route wrappers
-are covered via integration rather than unit tests), across:
+**99 tests, 95% overall statement coverage**, including full route-level
+integration tests (via FastAPI's `TestClient`) for every feature's HTTP
+endpoints — not just service-layer unit tests — plus a dedicated WebSocket
+feed test for the Control Room live push:
 
-- `test_crowd_agent.py`, `test_sensor_simulator.py` — occupancy simulation, congestion classification, prediction bounds
-- `test_wayfinding_agent.py`, `test_stadium_graph.py` — routing, low-sensory mode, blocked-zone avoidance
-- `test_fan_assistant.py`, `test_faq_knowledge.py` — intent detection, navigation routing, multi-language FAQ matching
-- `test_anomaly_detector.py`, `test_decision_orchestrator.py`, `test_incident_store.py` — surge detection, reasoning-transparent recommendations, incident lifecycle
+- `test_crowd_agent.py`, `test_sensor_simulator.py`, `test_crowd_routes.py` — occupancy simulation, congestion classification, prediction bounds, HTTP endpoints
+- `test_wayfinding_agent.py`, `test_stadium_graph.py`, `test_wayfinding_routes.py` — routing, low-sensory mode, blocked-zone avoidance, HTTP endpoints
+- `test_fan_assistant.py`, `test_faq_knowledge.py`, `test_fan_assistant_routes.py` — intent detection, navigation routing, multi-language FAQ matching, HTTP endpoints
+- `test_anomaly_detector.py`, `test_decision_orchestrator.py`, `test_incident_store.py`, `test_control_room_routes.py`, `test_control_room_ws.py` — surge detection, reasoning-transparent recommendations, incident lifecycle, staff-key auth (401 on missing/invalid key), live WebSocket feed
 - `test_security.py`, `test_security_headers.py`, `test_rate_limiter.py` — input sanitization, prompt-injection filtering, response headers, burst-load limiting
-- `test_voice_service.py` — LiveKit session/token generation
+- `test_voice_service.py`, `test_voice_routes.py` — LiveKit session/token generation, HTTP endpoints
 - `test_error_handlers.py`, `test_errors.py` — typed error responses, generic-500 fallback
+- `test_main_routes.py` — `/health` and `/` root endpoints
 
 **Frontend — 12 tests:**
 
