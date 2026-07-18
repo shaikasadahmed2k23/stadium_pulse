@@ -2,7 +2,7 @@
 Control Room schemas (Feature 4 + 6 + 8).
 """
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from shared.schemas import ZoneData
 
 
-class IncidentType(str, Enum):
+class IncidentType(StrEnum):
     CROWD_SURGE = "crowd_surge"
     LOST_PERSON = "lost_person"
     MEDICAL = "medical"

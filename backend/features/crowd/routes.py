@@ -1,6 +1,8 @@
 """
 Crowd Intelligence API routes (Feature 1).
 """
+from typing import Annotated
+
 from fastapi import APIRouter, Query
 
 from features.crowd.schemas import CrowdPredictionResponse
@@ -11,7 +13,9 @@ crowd_agent = CrowdIntelligenceAgent()
 
 
 @router.get("/status", response_model=CrowdPredictionResponse)
-async def get_crowd_status(zone_ids: list[str] | None = Query(default=None)):
+async def get_crowd_status(
+    zone_ids: Annotated[list[str] | None, Query()] = None,
+):
     """
     Returns current occupancy + predicted congestion for all or specific
     zones. Unexpected failures fall through to the global exception handler

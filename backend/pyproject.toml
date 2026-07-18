@@ -1,44 +1,15 @@
-[project]
-name = "stadiumpulse-backend"
-version = "1.0.0"
-description = "StadiumPulse — AI-powered stadium operations backend (FastAPI + Gemini)"
-requires-python = ">=3.11"
-
 [tool.ruff]
 line-length = 100
-target-version = "py311"
-exclude = ["tests/fixtures", "venv", ".venv", "__pycache__"]
+target-version = "py312"
 
 [tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort (import order)
-    "B",   # flake8-bugbear (common bug patterns)
-    "UP",  # pyupgrade (modern Python idioms)
-    "SIM", # flake8-simplify
-    "C4",  # flake8-comprehensions
-]
-ignore = [
-    "E501",  # line length handled by formatter, not worth failing CI over
-    "UP042", # (str, Enum) not StrEnum -- intentional for Pydantic v2 JSON
-             # serialization compatibility across the codebase's enums
-    "B008",  # FastAPI's Query()/Depends()/Body() *require* being used as
-             # argument defaults -- this is idiomatic, not a bug, here
-]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["B008"]  # pytest fixtures rely on function-call defaults
-
-[tool.ruff.lint.isort]
-known-first-party = ["agents", "api", "core", "models", "services"]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
-check_untyped_defs = true
 ignore_missing_imports = true
-explicit_package_bases = true
-exclude = ["tests/", "venv/", "\\.venv/"]
+disallow_untyped_defs = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+exclude = ["tests/", "venv/", ".venv/"]

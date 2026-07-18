@@ -5,18 +5,19 @@ feature to import from another feature's schemas.py. Everything else
 belongs in its owning feature's schemas.py.
 """
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel
 
 
-class ZoneStatus(str, Enum):
+class ZoneStatus(StrEnum):
     NORMAL = "normal"
     ELEVATED = "elevated"
     CRITICAL = "critical"
 
 
-class Language(str, Enum):
+class Language(StrEnum):
+
     ENGLISH = "en"
     SPANISH = "es"
     FRENCH = "fr"

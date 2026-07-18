@@ -12,10 +12,10 @@ handler logs it once and shapes the JSON response once. Anything that is
 NOT raised as an AppError is treated as an actual bug (see the catch-all
 `Exception` handler in main.py) and gets logged with a full stack trace.
 """
-from enum import Enum
+from enum import StrEnum
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     VALIDATION_ERROR = "validation_error"
     NOT_FOUND = "not_found"
     UPSTREAM_ERROR = "upstream_error"   # Gemini / LiveKit / Supabase failures
