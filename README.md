@@ -264,7 +264,7 @@ Run the full backend suite:
 cd backend && pytest tests/ --cov=. --cov-report=term-missing -v
 ```
 
-**81 tests, 79% overall statement coverage** (100% on core business logic —
+**99 tests, 95% overall statement coverage** (100% on core business logic —
 schemas, agents, security, rate limiting, error handling; thin route wrappers
 are covered via integration rather than unit tests), across:
 

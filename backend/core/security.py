@@ -13,7 +13,7 @@ from core.errors import AppError
 settings = get_settings()
 
 
-async def verify_staff_api_key(x_api_key: str = Header(...)) -> str:
+async def verify_staff_api_key(x_api_key: str | None = Header(None, alias="x-api-key")) -> str:
     """
     Protects Control Room endpoints — only staff/dashboard clients with
     the correct key can access aggregated state, incidents, and reasoning

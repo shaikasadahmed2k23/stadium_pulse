@@ -5,7 +5,6 @@ using simple trend extrapolation + Gemini for natural-language risk summaries.
 """
 from datetime import UTC, datetime
 
-
 from features.crowd.schemas import CrowdPredictionResponse
 from features.crowd.sensor_simulator import SensorOutput, sensor_simulator
 from shared.base_agent import BaseAgent
