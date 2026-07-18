@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "StadiumPulse — FIFA World Cup 2026 Operations",
-  description: "GenAI-powered smart stadium ecosystem for tournament operations",
+export const metadata = {
+  title: "StadiumPulse — FIFA World Cup 2026",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon-180.png",
+  },
 };
 
 export default function RootLayout({
