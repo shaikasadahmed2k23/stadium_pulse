@@ -5,7 +5,7 @@ can display *why* a recommendation was made, not just the recommendation.
 """
 import logging
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class ReasoningLogger:
             "agent": self.agent_name,
             "decision": decision,
             "factors": factors,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         _reasoning_store.append(entry)
         logger.info(f"[{self.agent_name}] Reasoning logged: {decision}")

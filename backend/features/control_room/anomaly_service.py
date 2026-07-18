@@ -6,7 +6,7 @@ the system catching problems before staff notice them, directly
 answering the brief's "zero room for execution errors" requirement.
 """
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Literal
 
 from features.control_room.incident_store import incident_store
@@ -93,7 +93,7 @@ class AnomalyDetector(BaseAgent):
             auto_detected=True,
             suggested_action=suggested_action,
             severity=severity,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
         )
 
     async def _get_cached_or_generate_action(self, zone: ZoneData) -> str:
@@ -136,7 +136,7 @@ class AnomalyDetector(BaseAgent):
             auto_detected=False,
             suggested_action=self._default_action_for_type(incident_type),
             severity=severity,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
         )
         incident_store.add(incident)
         return incident

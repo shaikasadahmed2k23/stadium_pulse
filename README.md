@@ -87,13 +87,48 @@ Smart Stadiums & Tournament Operations — optimizing venue operations and eleva
 
 ## Architecture
 
-Five specialized agents, one orchestrator:
+Five specialized agents, one orchestrator — each agent owns a narrow,
+single-purpose Gemini prompt (intent detection, route extraction, or
+phrasing) rather than one large multi-purpose prompt, keeping responses
+fast, predictable, and independently testable.
 
-- **Crowd Intelligence Agent** — live occupancy simulation + congestion prediction
-- **Wayfinding Agent** — natural language navigation, congestion-aware routing, low-sensory mode
-- **Fan Assistant Agent** — multi-language FAQ + intent routing (text + voice)
-- **Anomaly Detector** — proactive incident detection (crowd surges, sustained critical zones)
-- **Decision Orchestrator** — aggregates all signals into explainable, prioritized staff recommendations
+```text
+                     ┌───────────────────────────┐
+Fan App / Control     │   FastAPI app (main.py)   │
+Room (Next.js) ──────▶│  • CORS + security headers │
+                     │  • rate limiting          │
+                     └──────────────┬──────────────┘
+                                    │
+                ┌───────────────────────┼───────────────────────┐
+                ▼                       ▼                       ▼
+   ┌────────────────────┐   ┌────────────────────┐   ┌────────────────────┐
+   │ Crowd Intelligence  │   │  Wayfinding Agent   │   │  Fan Assistant      │
+   │ Agent               │   │                     │   │ Agent               │
+   │ • occupancy sim     │   │ • congestion-aware   │   │ • intent detection  │
+   │ • 10-min prediction │   │   routing (graph)    │   │ • multi-language FAQ│
+   │                     │   │ • low-sensory mode   │   │ • routes nav queries│
+   └──────────┬───────────┘   └──────────────────────┘   │   to Wayfinding     │
+              │                                           └──────────┬─────────┘
+              ▼                                                      │
+   ┌──────────────────────┐                                          ▼
+   │  Anomaly Detector     │                              ┌────────────────────┐
+   │ • surge detection     │                              │  Voice Worker       │
+   │ • incident intake     │                              │  (LiveKit + Gemini  │
+   └──────────┬─────────────┘                              │   Realtime)         │
+              │                                              └────────────────────┘
+              ▼
+   ┌──────────────────────────┐
+   │  Decision Orchestrator    │
+   │  • aggregates all signals │
+   │  • explainable, prioritized│
+   │    staff recommendations  │──────▶ Control Room Dashboard (staff/volunteers)
+   └────────────────────────────┘
+```
+
+Every agent shares one base contract (`shared/base_agent.py`): each call to
+Gemini is wrapped in a `log_reasoning()` step that records the factors behind
+a decision, so every recommendation shown in the Control Room is traceable
+back to the data that produced it — not just a black-box LLM answer.
 
 ## Tech Stack
 
@@ -117,6 +152,27 @@ Five specialized agents, one orchestrator:
 - **Fans** — Fan App: navigation, multi-language chat/voice, low-sensory routing
 - **Volunteers & On-Ground Staff** — Control Room Dashboard: real-time zone status, incident alerts, actionable recommendations
 - **Organizers** — Reasoning transparency panel gives full visibility into why the system is recommending each action, supporting oversight and audit needs
+
+
+## Problem Statement Coverage
+
+[Challenge 4: Smart Stadiums & Tournament Operations](#) requires a GenAI-enabled
+solution improving venue operations and tournament experience through crowd
+management, indoor navigation, real-time decision support, and multi-language
+assistance. StadiumPulse maps directly onto these requirements:
+
+| Challenge requirement       | StadiumPulse feature                                              |
+| ---------------------------- | ------------------------------------------------------------------ |
+| Crowd management             | Crowd Intelligence Agent — live occupancy + 10-min congestion prediction; Anomaly Detector — proactive surge/incident detection |
+| Indoor navigation            | Wayfinding Agent — natural-language, congestion-aware routing      |
+| Accessibility                | Low-sensory routing mode (avoids high-stimulus zones for sensory-sensitive fans) |
+| Multi-language assistance    | Fan Assistant Agent — 6-language FAQ + intent routing, text and voice |
+| Real-time decision support   | Decision Orchestrator — aggregates all agent signals into explainable, prioritized staff recommendations |
+| Operational intelligence     | Control Room Dashboard — live zone status, incident alerts, reasoning-transparent recommendations for volunteers/staff |
+
+Out of scope for this build (not required for the persona/vertical we chose —
+Fans + Volunteers/Staff — see Assumptions Made): dedicated transportation routing
+and sustainability tracking modules.
 
 ## Running Locally
 
@@ -158,19 +214,92 @@ backend/
 
 See `docs/decisions.md` for the reasoning behind this structure.
 
-## Testing
+## Quality Attributes
+
+### 🔐 Security
+
+- **No secrets in code.** All keys (`GEMINI_API_KEY`, `SUPABASE_KEY`,
+  `API_SECRET_KEY`, LiveKit credentials) are read from environment variables
+  only; `.env` is git-ignored, only `.env.example` is committed.
+- **Input sanitization** on every user-facing text field
+  (`core/security.py`) — strips control characters, filters prompt-injection
+  patterns, truncates oversized input before it ever reaches Gemini.
+- **Security headers** on every response (`core/security_headers.py`):
+  `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`,
+  Content-Security-Policy, Permissions-Policy.
+- **Token-bucket rate limiting** per client/route (`core/rate_limiter.py`),
+  returning `429` with `Retry-After` once exhausted.
+- **Restrictive CORS** — explicit `ALLOWED_ORIGINS` allow-list, no wildcard.
+- **Staff-only endpoints** (Control Room, incident resolution) gated behind
+  `API_SECRET_KEY`; Fan App endpoints are public by design.
+
+### ⚡ Efficiency
+
+- **In-memory caching** (`services/cache_service.py`) with TTL avoids
+  redundant Gemini calls for repeated queries.
+- **Async throughout** — all routes and Gemini calls are non-blocking.
+- Voice worker runs as a lightweight subprocess alongside the API process,
+  avoiding a separate always-on service on free-tier infrastructure.
+- Each Gemini-backed agent uses a **narrow, single-purpose prompt** (intent
+  detection, route extraction, phrasing) rather than one large multi-purpose
+  prompt — faster responses, easier to test and cache.
+
+### ♿ Accessibility
+
+- **Low-sensory routing mode** — Wayfinding Agent excludes high-stimulus
+  zones (loud, crowded, bright) from suggested routes for sensory-sensitive
+  fans.
+- **Multi-language support** (6 languages) end-to-end for chat and voice,
+  so language is never a barrier to getting help.
+- **Voice assistant** — hands-free interaction option for fans who find
+  typing/reading difficult.
+- Frontend uses semantic HTML, labeled form controls, and visible focus
+  states throughout (Fan App + Control Room).
+
+### 🧪 Testing
+
+Run the full backend suite:
 
 ```bash
-# Backend — 81 tests
-cd backend && pytest tests/ -v
+cd backend && pytest tests/ --cov=. --cov-report=term-missing -v
+```
 
-# Frontend — 12 tests
+**81 tests, 79% overall statement coverage** (100% on core business logic —
+schemas, agents, security, rate limiting, error handling; thin route wrappers
+are covered via integration rather than unit tests), across:
+
+- `test_crowd_agent.py`, `test_sensor_simulator.py` — occupancy simulation, congestion classification, prediction bounds
+- `test_wayfinding_agent.py`, `test_stadium_graph.py` — routing, low-sensory mode, blocked-zone avoidance
+- `test_fan_assistant.py`, `test_faq_knowledge.py` — intent detection, navigation routing, multi-language FAQ matching
+- `test_anomaly_detector.py`, `test_decision_orchestrator.py`, `test_incident_store.py` — surge detection, reasoning-transparent recommendations, incident lifecycle
+- `test_security.py`, `test_security_headers.py`, `test_rate_limiter.py` — input sanitization, prompt-injection filtering, response headers, burst-load limiting
+- `test_voice_service.py` — LiveKit session/token generation
+- `test_error_handlers.py`, `test_errors.py` — typed error responses, generic-500 fallback
+
+**Frontend — 12 tests:**
+
+```bash
 cd frontend && npm run test
 ```
 
+**Lint & types:**
+
+```bash
+ruff check .    # All checks passed!
+mypy .          # Success: no issues found in 44 source files
+```
+
+### 🎯 Code Quality
+
+- `ruff` and `mypy` both pass clean, configured in `backend/pyproject.toml`.
+- Each of the 5 agents follows the same `BaseAgent` interface (`shared/base_agent.py`) with structured `log_reasoning()` calls, so every recommendation is explainable and consistent across agents.
+- Feature-based folder structure keeps each agent's routes, schemas, and service logic co-located and independently testable.
+- Containerized via `Dockerfile` for reproducible builds.
+
 ## Live Demo
 
-- **Deployed App:** [link after deployment]
+- **Deployed App:** [https://stadium-pulse-seven.vercel.app](https://stadium-pulse-seven.vercel.app)
+- **Backend API:** [https://stadiumpulse-backend-gogf.onrender.com](https://stadiumpulse-backend-gogf.onrender.com)
 - **Control Room Dashboard:** `/control-room`
 - **Fan App:** `/fan-app`
 
