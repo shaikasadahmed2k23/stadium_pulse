@@ -1,0 +1,59 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#111A2E"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#22D3A6"/>
+      <stop offset="100%" stop-color="#2DD4BF"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22D3A6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#22D3A6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- App icon background, rounded square -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- ambient glow behind the mark -->
+  <circle cx="256" cy="256" r="200" fill="url(#glow)"/>
+
+  <!-- stadium bowl: two concentric arcs suggesting tiered seating -->
+  <ellipse cx="256" cy="270" rx="168" ry="92" fill="none" stroke="#1E2B45" stroke-width="14"/>
+  <ellipse cx="256" cy="270" rx="132" ry="70" fill="none" stroke="#243352" stroke-width="12"/>
+
+  <!-- pitch -->
+  <ellipse cx="256" cy="270" rx="96" ry="48" fill="#0E1830"/>
+  <ellipse cx="256" cy="270" rx="96" ry="48" fill="none" stroke="#2DD4BF" stroke-opacity="0.25" stroke-width="3"/>
+  <line x1="256" y1="222" x2="256" y2="318" stroke="#2DD4BF" stroke-opacity="0.25" stroke-width="3"/>
+
+  <!-- pulse / heartbeat line crossing the stadium -->
+  <path d="M 88 270
+           L 168 270
+           L 196 206
+           L 226 322
+           L 256 180
+           L 286 322
+           L 316 206
+           L 344 270
+           L 424 270"
+        fill="none"
+        stroke="url(#teal)"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        filter="url(#softGlow)"/>
+
+  <!-- endpoint nodes -->
+  <circle cx="88" cy="270" r="9" fill="#2DD4BF"/>
+  <circle cx="424" cy="270" r="9" fill="#22D3A6"/>
+</svg>
